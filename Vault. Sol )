@@ -20,3 +20,4 @@ contract VulcanVault {
         balances[msg.sender] = 0; // State variable updated too late
     }
 }
+  
