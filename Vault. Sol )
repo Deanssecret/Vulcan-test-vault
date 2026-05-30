@@ -1,0 +1,22 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract VulcanVault {
+    mapping(address => uint256) public balances;
+
+    // CRITICAL ACCESS CONTROL FLAW: Missing restriction modifier
+    function setBalance(address user, uint256 amount) public {
+        balances[user] = amount;
+    }
+
+    // CRITICAL RE-ENTRANCY VULNERABILITY: External call happens before updating state
+    function withdrawBalance() public {
+        uint256 amount = balances[msg.sender];
+        require(amount > 0, "Zero balance");
+
+        (bool success, ) = msg.sender.call{value: amount}("");
+        require(success, "Transfer failed");
+
+        balances[msg.sender] = 0; // State variable updated too late
+    }
+}
